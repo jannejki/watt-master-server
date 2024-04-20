@@ -1,0 +1,1 @@
+Controllers handle incoming requests, calling the appropriate services and returning responses.
