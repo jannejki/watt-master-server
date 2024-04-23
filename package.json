@@ -17,8 +17,10 @@
   "author": "jannejki",
   "license": "none",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
+    "mqtt": "^5.5.3",
     "passport": "^0.7.0"
   },
   "devDependencies": {
