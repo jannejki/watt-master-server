@@ -3,6 +3,7 @@ dotenv.config();
 
 import MQTTConfig from "./config/MQTT";
 import { startMQTTClient } from "./services/MQTT";
+import startPriceUpdater from './utils/priceUpdater';
 (() => {
 
     //=================================================//
@@ -21,4 +22,9 @@ import { startMQTTClient } from "./services/MQTT";
         throw new Error('MQTT password is required');
     }
     startMQTTClient(MQTTConfig);
+
+    //=================================================//
+    //          Price updater configuration             //
+    //=================================================//
+    startPriceUpdater();
 })();
