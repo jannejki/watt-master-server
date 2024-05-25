@@ -11,7 +11,6 @@ export function AuthProvider({ children }) {
     const [loadingUser, setLoadingUser] = useState(true);
 
     async function login(email, password) {
-        console.log(email, password);
         const response = await fetch('https://localhost:443/login', {
             method: 'POST',
             headers: {
@@ -24,9 +23,14 @@ export function AuthProvider({ children }) {
         if (response.ok) {
             const data = await response.json();
             setCurrentUser(data); // Update currentUser state
-            return true; // Indicate login success
+            return { success: true, user: currentUser, message: null }; // Indicate login success
         } else {
-            return false; // Indicate login failure
+            let data = await response.json();
+            if (response.status === 401) {
+                return { success: false, user: null, message: data.message }; // Indicate login success
+            } else {
+                return { success: false, user: null, message: data.message }; // Indicate login success
+            }
         }
     }
 

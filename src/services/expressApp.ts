@@ -2,12 +2,13 @@ import express from 'express';
 
 import morgan from 'morgan';
 import passport from "passport";
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-
+import { Strategy as JwtStrategy } from "passport-jwt";
+import path from 'path';
 import bodyParser from "body-parser";
 import loginRouter from '../routes/loginRoutes';
 import cookieParser from "cookie-parser";
 import cors from 'cors';
+import deviceRouter from '../routes/deviceRoutes';
 
 export default function createApp() {
     const app = express();
@@ -26,7 +27,7 @@ export default function createApp() {
 
     const jwtDecodeOptions = {
         jwtFromRequest: function (req: any) {
-   
+
             // Your logic to extract the JWT from the request
             // For example, if the JWT is in a cookie named 'jwt':
             return req.cookies.authorization;
@@ -35,6 +36,7 @@ export default function createApp() {
         issuer: "accounts.examplesoft.com",
         audience: "yoursite.net",
     };
+
     passport.use(
         new JwtStrategy(jwtDecodeOptions, (payload, done) => {
             console.log("jwt payload", payload);
@@ -43,7 +45,9 @@ export default function createApp() {
     );
 
     // send static files from client/build
-
     app.use(loginRouter);
+    app.use(deviceRouter);
+    
+    app.use(express.static(path.join(__dirname, '../../client', 'build')));
     return app;
 }

@@ -12,6 +12,7 @@ export interface Device {
     uuid: string;
     owner_id: number;
     relays: Relay[];
+    name: string;
 }
 
 
@@ -21,4 +22,5 @@ export interface DeviceFromDatabase {
     owner_id: number;
     relays: string; // Assuming relays are stored as a array of Relay objects in the database
     // Add other properties as needed
+    name: string;
 }
