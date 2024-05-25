@@ -1,67 +1,50 @@
-import Login from "./Pages/Login";
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider, useAuth } from "./Contexts/AuthContext";
-import Dashboard from "./Pages/Dashboard";
-import Self from "./Pages/Self";
-import PrivateRoute from "./Components/PrivateRoute";
+import { AuthProvider, useAuth } from './Contexts/AuthContext';
+import AppContent from './AppContent';
+import PrivateRoute from './Components/PrivateRoute';
+import Login from './Pages/Login';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Navigation from "./Components/Navbar";
-import Container from "react-bootstrap/Container";
-import { SocketProvider } from './Contexts/SocketContext';
+import Navigation from './Components/Navbar';
+import Container from 'react-bootstrap/Container';
 
 function MainContent() {
-  const { currentUser } = useAuth();
+    const { currentUser } = useAuth();
 
-  return (
-    <>
-      <Container fluid={true} className="vh-100 p-0 m-0">
-        {currentUser && <Navigation />}
-
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/self"
-            element={
-              <PrivateRoute>
-                <Self />
-              </PrivateRoute>
-            }
-          />
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </Container>
-    </>
-  );
-}
-
-
-function AuthWrapper({ children }) {
-  const { currentUser } = useAuth();
-  return (
-    <SocketProvider currentUser={currentUser}>
-      {children}
-    </SocketProvider>
-  );
+    return (
+        <Container fluid={true} className="vh-100 p-0 m-0">
+            {currentUser && <Navigation />}
+            <Routes>
+                <Route
+                    path="/"
+                    element={
+                        <PrivateRoute>
+                            <AppContent />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/self"
+                    element={
+                        <PrivateRoute>
+                            <AppContent />
+                        </PrivateRoute>
+                    }
+                />
+                <Route path="/login" element={<Login />} />
+            </Routes>
+        </Container>
+    );
 }
 
 function App() {
-  return (
-    <Router>
-      <AuthProvider>
-        <AuthWrapper>
-          <MainContent />
-        </AuthWrapper>
-      </AuthProvider>
-    </Router>
-  );
+    return (
+        <Router>
+            <AuthProvider>
+                <MainContent />
+            </AuthProvider>
+        </Router>
+    );
 }
-
 
 export default App;

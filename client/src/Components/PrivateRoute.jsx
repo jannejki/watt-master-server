@@ -7,5 +7,5 @@ export default function PrivateRoute({ children }) {
 
     if (loadingUser) return <p>Loading...</p>;
 
-    return currentUser ? <DeviceProvider>{children}</DeviceProvider> : <Navigate to="/login" replace />;
+    return currentUser ? children : <Navigate to="/login" replace />;
 };

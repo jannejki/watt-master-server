@@ -11,6 +11,7 @@ export function DeviceProvider({ children }) {
     const [devices, setDevices] = useState([]);
     const [loadingDevices, setLoadingDevices] = useState(true);
     const { sendMessage } = useSocket();
+
     useEffect(() => {
         // Check if the user is already logged in
         async function getDevices() {
@@ -39,14 +40,26 @@ export function DeviceProvider({ children }) {
         getDevices();
     }, []);
 
-    async function relayUpdate(deviceID, relayID, settings) {
+    async function updateRelaySettings(deviceID, relayID, settings) {
         sendMessage({ deviceID, relayID, settings });
+    }
+
+    async function renderDevice(device) {
+        setDevices((prevDevices) => {
+            const index = prevDevices.findIndex((d) => d.id === device.id);
+            if (index === -1) {
+                return [...prevDevices, device];
+            } else {
+                return prevDevices.map((d) => (d.id === device.id ? device : d));
+            }
+        });
     }
 
     const value = {
         devices,
         loadingDevices,
-        relayUpdate,
+        updateRelaySettings,
+        renderDevice
     };
 
     return (

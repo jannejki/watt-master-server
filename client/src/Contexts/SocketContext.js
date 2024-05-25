@@ -7,14 +7,12 @@ export function useSocket() {
     return useContext(SocketContext);
 }
 
-export function SocketProvider({ children, currentUser }) {
+export function SocketProvider({ children, currentUser, onMessage }) {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-
         if (currentUser) {
             const newSocket = io('http://localhost:3000', {
-                // The client has a httpOnly cookie called authorization that contains the JWT token           
                 withCredentials: true,
             });
 
@@ -27,26 +25,26 @@ export function SocketProvider({ children, currentUser }) {
             });
 
             newSocket.on('message', (message) => {
-                console.log('message received: ', message);
+                if (onMessage) {
+                    onMessage(message);
+                }
             });
 
             setSocket(newSocket);
 
-            return () => {
-                console.log("Disconnected from socket")
-                newSocket.disconnect();
-            };
         }
-    }, [currentUser]);
+    }, [currentUser, onMessage]);
 
-    async function sendMessage(message) {
-        socket.emit('message', message);
-    }
+    const sendMessage = (message) => {
+        if (socket) {
+            socket.emit('message', message);
+        }
+    };
 
     const value = {
         socket,
-        sendMessage
-    }
+        sendMessage,
+    };
 
     return (
         <SocketContext.Provider value={value}>

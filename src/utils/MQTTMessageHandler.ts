@@ -1,5 +1,6 @@
 import knexInstance from "../config/knex";
 import { sendMQTTMessage } from "../services/MQTT";
+import { sendMessageToClient } from "../services/socket";
 import { Device, Relay, RelayCommand } from "../typings/database/dto/Device.dto";
 import { parseDevice, parseStatus } from "./parseDevice";
 import { getCurrentPrice } from "./priceUpdater";
@@ -14,7 +15,7 @@ const MQTTMessageHandler = {
         const foundDeviceData = await knexInstance('devices').select('*').where('uuid', uuid).first();
         if (foundDeviceData) {
             let device = parseDevice(foundDeviceData);
-            
+
             // send a command to the device to turn on the relay
             if (!process.env.MQTT_COMMAND_TOPIC) throw new Error("MQTT_TOPIC not set");
 
@@ -55,6 +56,11 @@ const MQTTMessageHandler = {
 
         // Execute the raw SQL query
         await knexInstance.raw(updateQuery);
+        let updatedDeviceData = await knexInstance('devices').select('*').where({ uuid }).first();
+        if (!updatedDeviceData) throw new Error(`Device not found: ${uuid}`);
+        updatedDeviceData = parseDevice(updatedDeviceData);
+        sendMessageToClient(device.owner_id, updatedDeviceData);
+
     },
 
     async sendCommand(uuid: string, command: RelayCommand): Promise<void> {

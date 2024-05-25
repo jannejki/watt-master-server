@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import knexInstance from "../config/knex";
 import MQTTMessageHandler from "../utils/MQTTMessageHandler";
-import { RelayCommand } from "../typings/database/dto/Device.dto";
+import { Device, Relay, RelayCommand } from "../typings/database/dto/Device.dto";
 
 let io: Server;
 
@@ -39,6 +39,13 @@ function extractAuthorizationCookieFromSocket(socket: any): JwtPayload | undefin
 
     return decoded;
 }
+
+// Function to send a message to a specific room
+export function sendMessageToClient(userID: number, device: Device) {
+    let room = `user:${userID}`;
+    io.to(room).emit("message", device);
+}
+
 
 
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 
@@ -13,7 +13,7 @@ export const RelayMode = Object.freeze({
 });
 
 
-export default function Relay({ relay, onRelayChange, deviceId }) {
+export default function Relay({ relay, updateRelaySettings, deviceId }) {
     const [state, setState] = useState(relay.state);
     const [mode, setMode] = useState(relay.mode);
     const [threshold, setThreshold] = useState(relay.threshold);
@@ -21,14 +21,14 @@ export default function Relay({ relay, onRelayChange, deviceId }) {
 
     const handleStateChange = () => {
         const newState = state === RelayState.ON ? RelayState.OFF : RelayState.ON;
-        onRelayChange(deviceId, relay.relay, { state: newState });
+        updateRelaySettings(deviceId, relay.relay, { state: newState });
         setState(RelayState.newState);
         setLoading(true);
     };
 
     const handleModeChange = () => {
         const newMode = mode === RelayMode.AUTO ? RelayMode.MANUAL : RelayMode.AUTO;
-        onRelayChange(deviceId, relay.relay, { mode: newMode });
+        updateRelaySettings(deviceId, relay.relay, { mode: newMode });
         setMode(RelayMode.newMode);
         setLoading(true);
     };
@@ -36,10 +36,15 @@ export default function Relay({ relay, onRelayChange, deviceId }) {
     const handleThresholdChange = (e) => {
         const newThreshold = e.target.value;
         setThreshold(newThreshold);
-        onRelayChange(deviceId, relay.relay, { threshold: newThreshold });
-        setLoading(true);
-
+        updateRelaySettings(deviceId, relay.relay, { threshold: newThreshold });
     };
+
+    useEffect(() => {
+        setState(relay.state);
+        setMode(relay.mode);
+        setThreshold(relay.threshold);
+        setLoading(false);
+    },[relay]);
 
     return (
         <Row className="relay p-2 m-2" key={relay.relay}>
