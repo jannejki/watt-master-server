@@ -39,7 +39,6 @@ export default function createApp() {
 
     passport.use(
         new JwtStrategy(jwtDecodeOptions, (payload, done) => {
-            console.log("jwt payload", payload);
             return done(null, payload.data);
         }),
     );

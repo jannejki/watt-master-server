@@ -26,8 +26,7 @@ export default function Self() {
         });
 
         if (response.ok) {
-            const data = await response.json();
-            console.log(data);
+         
         } else {
             console.log("Error");
         }

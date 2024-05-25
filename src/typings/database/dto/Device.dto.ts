@@ -4,7 +4,11 @@ export interface Relay {
     state: 'on' | 'off';
     threshold: number;
     price: number | undefined;
+}
 
+// Define a second interface for commands
+export interface RelayCommand extends Partial<Relay> {
+    relay: number; // Relay is still mandatory
 }
 
 export interface Device {

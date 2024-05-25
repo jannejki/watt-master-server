@@ -6,7 +6,6 @@ import { parseDevice } from "../utils/parseDevice";
 
 export async function getDevices(req: Request, res: Response) {
     try {
-        console.log(req.user);
         let devices = await knexInstance("devices").where({ owner_id: req.user.id });
         devices = devices.map(parseDevice);
 

@@ -123,5 +123,3 @@ export function sendMQTTMessage(topic: string, message: string): Boolean {
 
     return success;
 }
-
-

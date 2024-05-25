@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useSocket } from './SocketContext';
 
 const DeviceContext = createContext();
 
@@ -9,7 +10,7 @@ export function useDevices() {
 export function DeviceProvider({ children }) {
     const [devices, setDevices] = useState([]);
     const [loadingDevices, setLoadingDevices] = useState(true);
-
+    const { sendMessage } = useSocket();
     useEffect(() => {
         // Check if the user is already logged in
         async function getDevices() {
@@ -39,7 +40,7 @@ export function DeviceProvider({ children }) {
     }, []);
 
     async function relayUpdate(deviceID, relayID, settings) {
-        console.log({deviceID, relayID, settings});
+        sendMessage({ deviceID, relayID, settings });
     }
 
     const value = {
