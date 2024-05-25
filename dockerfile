@@ -14,7 +14,7 @@ RUN npm install --production
 COPY . .
 
 # Build the TypeScript code
-RUN npm run builddocker images
+RUN npm run build
 
 # Expose the port your app runs on
 EXPOSE 3000
