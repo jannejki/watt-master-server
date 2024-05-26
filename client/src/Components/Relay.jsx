@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
+import debounce from '../Utils/debounce';
 
 export const RelayState = Object.freeze({
     ON: "on",
     OFF: "off",
+    LOADING: "Ladataan...",
 });
 
 export const RelayMode = Object.freeze({
     AUTO: "auto",
     MANUAL: "manual",
+    LOADING: "Ladataan...",
 });
 
 
@@ -22,21 +25,39 @@ export default function Relay({ relay, updateRelaySettings, deviceId }) {
     const handleStateChange = () => {
         const newState = state === RelayState.ON ? RelayState.OFF : RelayState.ON;
         updateRelaySettings(deviceId, relay.relay, { state: newState });
-        setState(RelayState.newState);
+        setState(RelayState.LOADING);
         setLoading(true);
     };
 
     const handleModeChange = () => {
         const newMode = mode === RelayMode.AUTO ? RelayMode.MANUAL : RelayMode.AUTO;
         updateRelaySettings(deviceId, relay.relay, { mode: newMode });
-        setMode(RelayMode.newMode);
+        setMode(RelayMode.LOADING);
         setLoading(true);
     };
+
+    const sendRequest = () => {
+        updateRelaySettings(deviceId, relay.relay, { threshold });
+    };
+
+
+    const ref = useRef(sendRequest);
+    useEffect(() => {
+        ref.current = sendRequest;
+    }, [threshold]);
+
+    const debouncedCallback = useMemo(() => {
+        const func = () => {
+            ref.current?.();
+        };
+        return debounce(func, 1000);
+    }, []);
+
 
     const handleThresholdChange = (e) => {
         const newThreshold = e.target.value;
         setThreshold(newThreshold);
-        updateRelaySettings(deviceId, relay.relay, { threshold: newThreshold });
+        debouncedCallback();
     };
 
     useEffect(() => {
@@ -44,7 +65,7 @@ export default function Relay({ relay, updateRelaySettings, deviceId }) {
         setMode(relay.mode);
         setThreshold(relay.threshold);
         setLoading(false);
-    },[relay]);
+    }, [relay]);
 
     return (
         <Row className="relay p-2 m-2" key={relay.relay}>

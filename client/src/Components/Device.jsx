@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from 'react-bootstrap/Card';
 import Relay from './Relay';
 
+
+
+
 export default function Device({ device, updateRelaySettings }) {
 
-    useEffect(() => {
-    }, [device]);
 
     return (
         <Card className="my-3 text-center col-6 m-auto">

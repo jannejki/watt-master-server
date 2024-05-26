@@ -8,13 +8,13 @@ function AppContent() {
     const { currentUser } = useAuth();
     const [messages, setMessages] = useState([]);
 
-    const handleMessage = (message) => {
+    const deviceUpdate = (message) => {
         setMessages((prevMessages) => [...prevMessages, message]);
         // You can add additional logic here to handle the message, e.g., update devices
     };
 
     return (
-        <SocketProvider currentUser={currentUser} onMessage={handleMessage}>
+        <SocketProvider currentUser={currentUser} onDeviceUpdate={deviceUpdate}>
             <DeviceProvider>
                 <Dashboard messages={messages} />
             </DeviceProvider>

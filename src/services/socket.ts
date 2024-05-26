@@ -3,7 +3,8 @@ import { Server } from "socket.io";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import knexInstance from "../config/knex";
 import MQTTMessageHandler from "../utils/MQTTMessageHandler";
-import { Device, Relay, RelayCommand } from "../typings/database/dto/Device.dto";
+import { Device, RelayCommand } from "../typings/database/dto/Device.dto";
+import corsSettings from "../config/cors";
 
 let io: Server;
 
@@ -43,19 +44,14 @@ function extractAuthorizationCookieFromSocket(socket: any): JwtPayload | undefin
 // Function to send a message to a specific room
 export function sendMessageToClient(userID: number, device: Device) {
     let room = `user:${userID}`;
-    io.to(room).emit("message", device);
+    io.to(room).emit("deviceUpdate", device);
 }
-
-
 
 
 export function initSocket(httpsServer: ReturnType<typeof createServer>) {
     if (!process.env.SOCKET_IO_PORT) throw new Error('Socket.io port is required!');
     io = new Server(httpsServer, {
-        cors: {
-            origin: "http://localhost:3001",
-            credentials: true,
-        }
+        cors: corsSettings
     });
 
     io.engine.use((req: any, res: any, next: any) => {
@@ -116,7 +112,7 @@ export function initSocket(httpsServer: ReturnType<typeof createServer>) {
             return;
         }
 
-        socket.on("message", async (msg) => {
+        socket.on("deviceCommand", async (msg) => {
             try {
                 let token = extractAuthorizationCookieFromSocket(socket);
                 if (!token) {

@@ -7,14 +7,16 @@ export function useSocket() {
     return useContext(SocketContext);
 }
 
-export function SocketProvider({ children, currentUser, onMessage }) {
+export function SocketProvider({ children, currentUser, onDeviceUpdate }) {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        if (currentUser) {
+        if (!socket && currentUser) {
             const newSocket = io('http://localhost:3000', {
                 withCredentials: true,
             });
+            setSocket(newSocket);
+
 
             newSocket.on('connect', () => {
                 console.log('connected to socket server');
@@ -24,26 +26,23 @@ export function SocketProvider({ children, currentUser, onMessage }) {
                 console.log('disconnected from socket server');
             });
 
-            newSocket.on('message', (message) => {
-                if (onMessage) {
-                    onMessage(message);
+            newSocket.on('deviceUpdate', (message) => {
+                if (onDeviceUpdate) {
+                    onDeviceUpdate(message);
                 }
             });
-
-            setSocket(newSocket);
-
         }
-    }, [currentUser, onMessage]);
+    }, [currentUser, onDeviceUpdate, socket]);
 
-    const sendMessage = (message) => {
+    const sendCommand = (message) => {
         if (socket) {
-            socket.emit('message', message);
+            socket.emit('deviceCommand', message);
         }
     };
 
     const value = {
         socket,
-        sendMessage,
+        sendCommand,
     };
 
     return (

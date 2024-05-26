@@ -13,24 +13,24 @@ export default function Dashboard({ messages }) {
     }, [devices]);
 
     // Handle new messages
-    useEffect(() => {
-        if (messages.length > 0) {
-            const latestMessage = messages[messages.length - 1];
+useEffect(() => {
+    if (messages.length > 0) {
+        const latestMessage = messages[messages.length - 1];
 
-            if (latestMessage && latestMessage.id) {
-                let updatedDevices = deviceElements.map((device) => {
+        if (latestMessage && latestMessage.id) {
+            setDeviceElements(prevDeviceElements => {
+                return prevDeviceElements.map((device) => {
                     if (device.uuid === latestMessage.uuid) {
                         return latestMessage;
                     }
                     return device;
                 });
-                setDeviceElements(updatedDevices);
-            } else {
-                console.error("Latest message does not have the expected structure:", latestMessage);
-            }
+            });
+        } else {
+            console.error("Latest message does not have the expected structure:", latestMessage);
         }
-    }, [messages]);
-
+    }
+}, [messages]);
     return (
         <Container fluid="xl" className="text-center">
             <h1>Devices</h1>

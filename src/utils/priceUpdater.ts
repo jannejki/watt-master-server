@@ -29,7 +29,7 @@ export async function getCurrentPrice(): Promise<number> {
  */
 export default function startPriceUpdater(): void {
     if (process.env.NODE_ENV == 'DEV') {
-        setInterval(devPriceUpdater, 10000);
+        setInterval(devPriceUpdater, 1000 * 60 * 10);
     } else if (process.env.NODE_ENV == 'PROD') {
         cron.schedule('5 * * * *', priceUpdater);
     }

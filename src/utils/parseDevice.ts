@@ -42,6 +42,11 @@ export function parseStatus(status: string): Relay {
 
     if (!relayStatus.relay || !relayStatus.mode || !relayStatus.state || !relayStatus.threshold) throw new Error(`Invalid status message: ${status}. Found values from status messages: ${Object.keys(relayStatus).forEach(key => key + "= " + relayStatus[key])}`);
 
+    if (isNaN(parseFloat(relayStatus.threshold))) throw new Error(`Invalid threshold value: ${relayStatus.threshold}`);
+    if (isNaN(parseInt(relayStatus.relay))) throw new Error(`Invalid relay value: ${relayStatus.relay}`);
+    if (relayStatus.mode !== 'auto' && relayStatus.mode !== 'manual') throw new Error(`Invalid mode value: ${relayStatus.mode}`);
+    if (relayStatus.state !== 'on' && relayStatus.state !== 'off') throw new Error(`Invalid state value: ${relayStatus.state}`);
+
     return {
         relay: parseInt(relayStatus.relay),
         mode: relayStatus.mode as 'auto' | 'manual',

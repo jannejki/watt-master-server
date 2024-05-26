@@ -38,29 +38,35 @@ const MQTTMessageHandler = {
      */
     async status(uuid: string, message: string): Promise<void> {
         // Parse the uuid from the topic
-        const foundDeviceData = await knexInstance('devices').select('*').where({ uuid }).first();
-        if (!foundDeviceData) throw new Error(`Status message from unknown device: ${message}`);
+        try {
 
-        let device = parseDevice(foundDeviceData);
-        let relay = parseStatus(message.toString());
+            const foundDeviceData = await knexInstance('devices').select('*').where({ uuid }).first();
+            if (!foundDeviceData) throw new Error(`Status message from unknown device: ${message}`);
+
+            let device = parseDevice(foundDeviceData);
+            let relay = parseStatus(message.toString());
+
+            if (relayHasChanged(device, relay) == false) return;
 
 
-        if (relayHasChanged(device, relay) == false) return;
+            // Postgresql arrays start from 1, not 0 so we need to add 1 to the relay number
+            let updateQuery = `
+            UPDATE devices
+            SET relays[${relay.relay + 1}] = ('${relay.mode}', '${relay.state}', ${relay.threshold})
+            WHERE uuid = '${uuid}'
+            `;
 
-        // Postgresql arrays start from 1, not 0 so we need to add 1 to the relay number
-        let updateQuery = `
-        UPDATE devices
-        SET relays[${relay.relay + 1}] = ('${relay.mode}', '${relay.state}', ${relay.threshold})
-        WHERE uuid = '${uuid}'
-        `;
+            // Execute the raw SQL query
+            await knexInstance.raw(updateQuery);
 
-        // Execute the raw SQL query
-        await knexInstance.raw(updateQuery);
-        let updatedDeviceData = await knexInstance('devices').select('*').where({ uuid }).first();
-        if (!updatedDeviceData) throw new Error(`Device not found: ${uuid}`);
-        updatedDeviceData = parseDevice(updatedDeviceData);
-        sendMessageToClient(device.owner_id, updatedDeviceData);
+            let updatedDeviceData = await knexInstance('devices').select('*').where({ uuid }).first();
+            if (!updatedDeviceData) throw new Error(`Device not found: ${uuid}`);
+            updatedDeviceData = parseDevice(updatedDeviceData);
+            sendMessageToClient(device.owner_id, updatedDeviceData);
 
+        } catch (error) {
+            console.error(error);
+        }
     },
 
     async sendCommand(uuid: string, command: RelayCommand): Promise<void> {

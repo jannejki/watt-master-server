@@ -10,7 +10,7 @@ export function useDevices() {
 export function DeviceProvider({ children }) {
     const [devices, setDevices] = useState([]);
     const [loadingDevices, setLoadingDevices] = useState(true);
-    const { sendMessage } = useSocket();
+    const { sendCommand } = useSocket();
 
     useEffect(() => {
         // Check if the user is already logged in
@@ -41,7 +41,7 @@ export function DeviceProvider({ children }) {
     }, []);
 
     async function updateRelaySettings(deviceID, relayID, settings) {
-        sendMessage({ deviceID, relayID, settings });
+        sendCommand({ deviceID, relayID, settings });
     }
 
     async function renderDevice(device) {
