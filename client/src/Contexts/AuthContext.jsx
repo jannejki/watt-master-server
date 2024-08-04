@@ -56,7 +56,7 @@ export function AuthProvider({ children }) {
         async function checkAuth() {
 
             // Check session storage or any other method to fetch the user
-            const response = await fetch('https://localhost:443/self', {
+            const response = await fetch('/self', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

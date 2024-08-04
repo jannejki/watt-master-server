@@ -16,7 +16,7 @@ export default function Self() {
     }
 
     async function getSelfData() {
-        const response = await fetch('https://localhost:443/self', {
+        const response = await fetch('/self', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
