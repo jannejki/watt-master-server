@@ -13,9 +13,13 @@ const MQTTMessageHandler = {
      */
     async newDevice(uuid: string): Promise<void> {
         const foundDeviceData = await knexInstance('devices').select('*').where('uuid', uuid).first();
+
         if (foundDeviceData) {
             let device = parseDevice(foundDeviceData);
 
+            let result = await knexInstance('devices').where('uuid', uuid).update({ online: true });
+            let updated = await knexInstance('devices').select('*').where('uuid', uuid).first();
+      
             // send a command to the device to turn on the relay
             if (!process.env.MQTT_COMMAND_TOPIC) throw new Error("MQTT_TOPIC not set");
 
@@ -39,22 +43,19 @@ const MQTTMessageHandler = {
     async status(uuid: string, message: string): Promise<void> {
         // Parse the uuid from the topic
         try {
-
             const foundDeviceData = await knexInstance('devices').select('*').where({ uuid }).first();
             if (!foundDeviceData) throw new Error(`Status message from unknown device: ${message}`);
 
             let device = parseDevice(foundDeviceData);
             let relay = parseStatus(message.toString());
 
-            if (relayHasChanged(device, relay) == false) return;
 
-
-            // Postgresql arrays start from 1, not 0 so we need to add 1 to the relay number
             let updateQuery = `
-            UPDATE devices
-            SET relays[${relay.relay + 1}] = ('${relay.mode}', '${relay.state}', ${relay.threshold})
-            WHERE uuid = '${uuid}'
-            `;
+UPDATE devices
+SET relays[${relay.relay + 1}] = ('${relay.mode}', '${relay.state}', ${relay.threshold}),
+    online = true
+WHERE uuid = '${uuid}'
+`;
 
             // Execute the raw SQL query
             await knexInstance.raw(updateQuery);
@@ -84,7 +85,23 @@ const MQTTMessageHandler = {
         message += command.threshold ? `&threshold=${command.threshold}` : '';
 
         sendMQTTMessage(topic, message);
-    }
+    },
+
+    async deviceLastWill(uuid: string): Promise<void> {
+        try {
+            let device = await knexInstance('devices').select('*').where('uuid', uuid).first();
+
+            if (!device) throw new Error(`Device not found: ${uuid}`);
+            await knexInstance('devices').where('uuid', uuid).update({ online: false });
+
+            let updatedDeviceData = await knexInstance('devices').select('*').where({ uuid }).first();
+            let parsedDevice = parseDevice(updatedDeviceData);
+            sendMessageToClient(device.owner_id, parsedDevice);
+
+        } catch (error) {
+            console.error(error);
+        }
+    },
 }
 
 export default MQTTMessageHandler;

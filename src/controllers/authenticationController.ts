@@ -5,7 +5,6 @@ import knexInstance from "../config/knex";
 import bcrypt from "bcrypt";
 
 export async function login(req: Request, res: Response) {
-    // TODO search user from database and compare password
 
     let found = await knexInstance("users").where({ email: req.body.username }).first();
     if (!found) {

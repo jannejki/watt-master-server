@@ -1,4 +1,4 @@
-import { Device, DeviceFromDatabase, Relay } from "../typings/database/dto/Device.dto";
+import { Device, Relay } from "../typings/database/dto/Device.dto";
 
 /**
  * @param relaysString - a string containing relay information. Must be like this: '{"(auto,off,$0.00)","(manual,on,$0.00)"}'. This is due the way database stores the information.

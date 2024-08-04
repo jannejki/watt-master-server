@@ -7,7 +7,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import { Link, Navigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 
-export default function Navigation() {
+export default function Navigation(props) {
     const { currentUser } = useAuth();
     const { logout } = useAuth();
     if (!currentUser) return (null);
@@ -23,10 +23,11 @@ export default function Navigation() {
     }
 
     return (
-        <Navbar className="bg-body-tertiary" sticky="top" id="navbar">
+        <Navbar className="bg-body-tertiary d-flex" sticky="top" id="navbar">
             <Container>
                 <Navbar.Brand as={Link} to="/">Etusivu</Navbar.Brand>
                 <Navbar.Toggle />
+                <Navbar.Text className="text-muted m-auto">Hinta: {props.price} snt/kWh</Navbar.Text>
                 <Navbar.Collapse className="justify-content-end">
                     <Button variant="primary" className="btn-danger" onClick={handleLogout}>Kirjaudu ulos</Button>
                 </Navbar.Collapse>

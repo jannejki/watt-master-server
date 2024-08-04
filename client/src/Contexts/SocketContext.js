@@ -7,7 +7,7 @@ export function useSocket() {
     return useContext(SocketContext);
 }
 
-export function SocketProvider({ children, currentUser, onDeviceUpdate }) {
+export function SocketProvider({ children, currentUser, onDeviceUpdate, onPriceUpdate }) {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
@@ -29,6 +29,12 @@ export function SocketProvider({ children, currentUser, onDeviceUpdate }) {
             newSocket.on('deviceUpdate', (message) => {
                 if (onDeviceUpdate) {
                     onDeviceUpdate(message);
+                }
+            });
+
+            newSocket.on('electric/price', (message) => {
+                if (onPriceUpdate) {
+                    onPriceUpdate(message);
                 }
             });
         }

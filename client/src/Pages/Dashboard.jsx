@@ -13,27 +13,27 @@ export default function Dashboard({ messages }) {
     }, [devices]);
 
     // Handle new messages
-useEffect(() => {
-    if (messages.length > 0) {
-        const latestMessage = messages[messages.length - 1];
-
-        if (latestMessage && latestMessage.id) {
-            setDeviceElements(prevDeviceElements => {
-                return prevDeviceElements.map((device) => {
-                    if (device.uuid === latestMessage.uuid) {
-                        return latestMessage;
-                    }
-                    return device;
+    useEffect(() => {
+        if (messages.length > 0) {
+            const latestMessage = messages[messages.length - 1];
+            if (latestMessage && latestMessage.id) {
+                setDeviceElements(prevDeviceElements => {
+                    return prevDeviceElements.map((device) => {
+                        if (device.uuid === latestMessage.uuid) {
+                            // Return a new object with the updated message and status set to true
+                            return { ...latestMessage, networkStatus: true };
+                        }
+                        return { ...device, networkStatus: false };
+                    });
                 });
-            });
-        } else {
-            console.error("Latest message does not have the expected structure:", latestMessage);
+            } else {
+                console.error("Latest message does not have the expected structure:", latestMessage);
+            }
         }
-    }
-}, [messages]);
+    }, [messages]);
+
     return (
         <Container fluid="xl" className="text-center">
-            <h1>Devices</h1>
             {deviceElements.map(device => (
                 <Device key={device.id} device={device} updateRelaySettings={updateRelaySettings} />
             ))}

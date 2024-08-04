@@ -28,7 +28,13 @@ export function DeviceProvider({ children }) {
                     throw new Error('Virhe haetteassa laitteita!');
                 }
 
-                const devices = await response.json();
+                let devices = await response.json();
+
+                // Adding extra attribute networkStatus to devices
+                devices = devices.map((device) => {
+                    device.networkStatus = false;
+                    return device;
+                });
                 setDevices(devices);
             } catch (error) {
                 console.error(error);

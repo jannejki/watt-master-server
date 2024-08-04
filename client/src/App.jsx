@@ -13,7 +13,6 @@ function MainContent() {
 
     return (
         <Container fluid={true} className="vh-100 p-0 m-0">
-            {currentUser && <Navigation />}
             <Routes>
                 <Route
                     path="/"

@@ -1,8 +1,10 @@
-const corsWhiteList = 
-[
-    "https://localhost",
-    "http://localhost:3001"
-]
+const corsWhiteList =
+    [
+        "https://localhost",
+        "http://localhost:3000",
+
+        "http://localhost:3001"
+    ]
 
 const corsSettings = {
     origin: function (origin: any, callback: any) {

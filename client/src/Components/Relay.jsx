@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import debounce from '../Utils/debounce';
@@ -16,35 +16,40 @@ export const RelayMode = Object.freeze({
 });
 
 
-export default function Relay({ relay, updateRelaySettings, deviceId }) {
-    const [state, setState] = useState(relay.state);
-    const [mode, setMode] = useState(relay.mode);
-    const [threshold, setThreshold] = useState(relay.threshold);
+export default function Relay(props) {
+    const [state, setState] = useState(props.relay.state);
+    const [mode, setMode] = useState(props.relay.mode);
+    const [threshold, setThreshold] = useState(props.relay.threshold);
     const [loading, setLoading] = useState(false);
 
     const handleStateChange = () => {
         const newState = state === RelayState.ON ? RelayState.OFF : RelayState.ON;
-        updateRelaySettings(deviceId, relay.relay, { state: newState });
+        props.updateRelaySettings(props.deviceId, props.relay.relay, { state: newState });
         setState(RelayState.LOADING);
         setLoading(true);
+        props.waitForStatusUpdate();
     };
 
     const handleModeChange = () => {
         const newMode = mode === RelayMode.AUTO ? RelayMode.MANUAL : RelayMode.AUTO;
-        updateRelaySettings(deviceId, relay.relay, { mode: newMode });
+        props.updateRelaySettings(props.deviceId, props.relay.relay, { mode: newMode });
         setMode(RelayMode.LOADING);
         setLoading(true);
+        props.waitForStatusUpdate();
     };
 
-    const sendRequest = () => {
-        updateRelaySettings(deviceId, relay.relay, { threshold });
-    };
+    const sendRequest = useCallback(() => {
+        props.updateRelaySettings(props.deviceId, props.relay.relay, { threshold });
+        props.waitForStatusUpdate();
+    }, [props, threshold]);
 
+    useEffect(() => {
+    }, [props.timeouted])
 
     const ref = useRef(sendRequest);
     useEffect(() => {
         ref.current = sendRequest;
-    }, [threshold]);
+    }, [sendRequest]);
 
     const debouncedCallback = useMemo(() => {
         const func = () => {
@@ -61,15 +66,20 @@ export default function Relay({ relay, updateRelaySettings, deviceId }) {
     };
 
     useEffect(() => {
-        setState(relay.state);
-        setMode(relay.mode);
-        setThreshold(relay.threshold);
+        setState(props.relay.state);
+        setMode(props.relay.mode);
+        setThreshold(props.relay.threshold);
         setLoading(false);
-    }, [relay]);
+
+    }, [props.relay]);
+
+    useEffect(() => {
+        setLoading(!props.networkStatus);
+    }, [props.networkStatus]);
 
     return (
-        <Row className="relay p-2 m-2" key={relay.relay}>
-            <h2>Relay {relay.relay + 1}</h2>
+        <Row className="relay p-2 m-2" key={props.relay.relay}>
+            <h2>Rele {props.relay.relay + 1}</h2>
             <Button
                 className="col-lg-4 m-auto my-1"
                 variant={state === RelayState.ON ? "success" : "light"}
@@ -87,11 +97,11 @@ export default function Relay({ relay, updateRelaySettings, deviceId }) {
                 {mode}
             </Button>
             <div className="col-12 d-flex justify-content-between">
-                <label htmlFor={`threshold-${relay.relay}`} className="mx-auto">Threshold:</label>
+                <label htmlFor={`threshold-${props.relay.relay}`} className="mx-auto">Threshold:</label>
                 <input
                     type="number"
                     className="col-8 mx-auto"
-                    id={`threshold-${relay.relay}`}
+                    id={`threshold-${props.relay.relay}`}
                     name="threshold"
                     disabled={loading}
                     value={threshold}

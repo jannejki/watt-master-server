@@ -5,6 +5,8 @@ import knexInstance from "../config/knex";
 import MQTTMessageHandler from "../utils/MQTTMessageHandler";
 import { Device, RelayCommand } from "../typings/database/dto/Device.dto";
 import corsSettings from "../config/cors";
+import deviceInteractionService from "./deviceInteractionService";
+import { getCurrentPrice } from "../utils/priceUpdater";
 
 let io: Server;
 
@@ -106,6 +108,11 @@ export function initSocket(httpsServer: ReturnType<typeof createServer>) {
             }
 
             socket.join(`user:${user.id}`)
+            deviceInteractionService.pingAllDevicesOfUser(user.id);
+            let price = await getCurrentPrice();
+            console.log(price);
+            socket.emit("electric/price", { hour0: price });
+
         } catch (error) {
             console.error(error);
             socket.disconnect(true);
@@ -139,6 +146,26 @@ export function initSocket(httpsServer: ReturnType<typeof createServer>) {
 
                 // send MQTT message to the device
                 MQTTMessageHandler.sendCommand(device.uuid, command);
+
+
+                // Update the jwt token to keep the user logged in
+                const newToken = jwt.sign(
+                    {
+                        data: {
+                            id: user.id,
+                            username: user.email,
+                        },
+                    },
+                    process.env.JWT_SECRET as string,
+                    {
+                        issuer: "accounts.examplesoft.com",
+                        audience: "yoursite.net",
+                        expiresIn: "1h",
+                    },
+                );
+                // Set the token to the "authorization" cookie
+                socket.handshake.headers.cookie = `authorization=${newToken}`;
+
             } catch (error) {
                 console.error(error);
             }

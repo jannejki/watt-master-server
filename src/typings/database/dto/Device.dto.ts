@@ -17,6 +17,7 @@ export interface Device {
     owner_id: number;
     relays: Relay[];
     name: string;
+    online: boolean;
 }
 
 
@@ -27,4 +28,5 @@ export interface DeviceFromDatabase {
     relays: string; // Assuming relays are stored as a array of Relay objects in the database
     // Add other properties as needed
     name: string;
+    online: boolean;    
 }

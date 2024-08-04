@@ -1,18 +1,11 @@
 import mqtt from 'mqtt';
 import MQTTMessageHandler from '../utils/MQTTMessageHandler';
-
+import { TOPIC_NEW_DEVICE_PATTERN, TOPIC_COMMAND_PATTERN, TOPIC_STATUS_PATTERN, TOPIC_PRICE_PATTERN, TOPIC_DEVICE_LAST_WILL_PATTERN } from '../config/MQTT';
 //======================================================//
 //                    variables                         //
 //======================================================//
 // The MQTT Client that connects to the MQTT broker
 let client: mqtt.MqttClient;
-
-// Regex patterns for different topics
-//FIXME: maybe these should be in the MQTT.ts config file?
-const newDevicePattern = /^device\/new$/;
-const commandPattern = /^device\/(.+)\/command$/;
-const statusPattern = /^device\/(.+)\/status$/;
-const pricePattern = /^electric\/price$/;
 
 
 //======================================================//
@@ -26,26 +19,34 @@ const pricePattern = /^electric\/price$/;
  */
 async function handleMessage(topic: string, message: Buffer): Promise<void> {
     try {
-        if (newDevicePattern.test(topic)) {
+        if (TOPIC_NEW_DEVICE_PATTERN.test(topic)) {
             MQTTMessageHandler.newDevice(message.toString());
             return; // no need to process further
         }
 
-        if (commandPattern.test(topic)) {
+        if (TOPIC_COMMAND_PATTERN.test(topic)) {
             //    console.log("Command received: ", message.toString());
             return; // no need to process further
         }
 
 
-        if (statusPattern.test(topic)) {
-            let uuid = topic.match(statusPattern)?.[1];
+        if (TOPIC_STATUS_PATTERN.test(topic)) {
+            let uuid = topic.match(TOPIC_STATUS_PATTERN)?.[1];
             if (!uuid) throw new Error("UUID not found in topic");
             MQTTMessageHandler.status(uuid, message.toString());
             return; // no need to process further
         }
 
-        if (pricePattern.test(topic)) {
+        if (TOPIC_PRICE_PATTERN.test(topic)) {
             //   console.log("Price received: ", message.toString());
+            return; // no need to process further
+
+        }
+
+        if(TOPIC_DEVICE_LAST_WILL_PATTERN.test(topic)){
+            let uuid = topic.match(TOPIC_DEVICE_LAST_WILL_PATTERN)?.[1];
+            if (!uuid) throw new Error("UUID not found in topic");
+            MQTTMessageHandler.deviceLastWill(uuid);
             return; // no need to process further
         }
 
@@ -60,9 +61,9 @@ async function handleMessage(topic: string, message: Buffer): Promise<void> {
 }
 
 /**
- * 
- * @param config -  the configuration for the MQTT client
- * @returns {mqtt.MqttClient} - the MQTT client
+ * Create and start the MQTT client.
+ * @param config - MQTT client configuration.
+ * @returns MQTT client instance.
  */
 export function startMQTTClient(config: mqtt.IClientOptions): mqtt.MqttClient {
     client = mqtt.connect(config);
@@ -93,7 +94,6 @@ export function startMQTTClient(config: mqtt.IClientOptions): mqtt.MqttClient {
         console.log('MQTT reconnecting');
     });
 
-
     /**
      * Handle incoming messages.
      */
@@ -101,10 +101,8 @@ export function startMQTTClient(config: mqtt.IClientOptions): mqtt.MqttClient {
         handleMessage(topic, message);
     });
 
-
     return client;
 }
-
 
 /**
  * 
@@ -115,10 +113,12 @@ export function startMQTTClient(config: mqtt.IClientOptions): mqtt.MqttClient {
 export function sendMQTTMessage(topic: string, message: string): Boolean {
     let success: Boolean = false;
 
-    if (client.connected) {
+    if (client && client.connected) {
         client.publish(topic, message);
         success = true;
         console.log(`Message sent to ${topic}: ${message}`);
+    } else {
+        console.error("Can't send messages, MQTT client is not connected!");
     }
 
     return success;
