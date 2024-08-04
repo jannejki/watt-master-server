@@ -12,7 +12,7 @@ export function SocketProvider({ children, currentUser, onDeviceUpdate, onPriceU
 
     useEffect(() => {
         if (!socket && currentUser) {
-            const newSocket = io('http://localhost:3000', {
+            const newSocket = io(process.env.REACT_APP_WS_BASE_URL, {
                 withCredentials: true,
             });
             setSocket(newSocket);
