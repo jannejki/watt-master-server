@@ -1,13 +1,16 @@
 import { IClientOptions } from "mqtt/*";
 import * as fs from 'fs';
 
+if (process.env.MQTT_CERT == undefined) {
+    new Error("MQTT CERT NOT FOUND!");
+}
 const MQTTConfig: IClientOptions = {
     host: process.env.MQTT_HOST,
     port: process.env.MQTT_PORT ? parseInt(process.env.MQTT_PORT) : undefined,
     username: process.env.MQTT_USER,
     password: process.env.MQTT_PWD,
     keepalive: 10,
-    ca: fs.readFileSync("./src/certs/mosquitto.crt"),
+    ca: fs.readFileSync(process.env.MQTT_CERT || "not found"),
     protocol: 'ssl', // Specify the SSL/TLS protocol
 
 }
