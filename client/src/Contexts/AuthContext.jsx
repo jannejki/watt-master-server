@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
     const [loadingUser, setLoadingUser] = useState(true);
 
     async function login(email, password) {
-        const response = await fetch('https://localhost:443/login', {
+        const response = await fetch('/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export function AuthProvider({ children }) {
     }
 
     async function logout() {
-        const response = await fetch('https://localhost:443/logout', {
+        const response = await fetch('/logout', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

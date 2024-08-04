@@ -17,7 +17,7 @@ export function DeviceProvider({ children }) {
         async function getDevices() {
             try {
 
-                const response = await fetch('https://localhost/api/devices', {
+                const response = await fetch('/api/devices', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
