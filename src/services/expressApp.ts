@@ -9,6 +9,7 @@ import loginRouter from '../routes/loginRoutes';
 import cookieParser from "cookie-parser";
 import cors from 'cors';
 import deviceRouter from '../routes/deviceRoutes';
+import corsSettings from '../config/cors';
 
 export default function createApp() {
     const app = express();
@@ -18,12 +19,8 @@ export default function createApp() {
     app.use(bodyParser.json());
     app.use(cookieParser());
     // Cors is blocking the requests while developing, so we need to allow it with cors middleware
-    let corsOptions = {
-        origin: "http://localhost:3001",
-        credentials: true,
-    };
 
-    app.use(cors(corsOptions));
+    app.use(cors(corsSettings));
 
     const jwtDecodeOptions = {
         jwtFromRequest: function (req: any) {

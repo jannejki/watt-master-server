@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
     const [loadingUser, setLoadingUser] = useState(true);
 
     async function login(email, password) {
-        const response = await fetch('/login', {
+        const response = await fetch(process.env.REACT_APP_API_BASE_URL + '/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export function AuthProvider({ children }) {
     }
 
     async function logout() {
-        const response = await fetch('/logout', {
+        const response = await fetch(process.env.REACT_APP_API_BASE_URL + '/logout', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -55,25 +55,30 @@ export function AuthProvider({ children }) {
         // Check if the user is already logged in
         async function checkAuth() {
 
-            // Check session storage or any other method to fetch the user
-            const response = await fetch('/self', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include', // Include cookies in the request
-            });
+            try {
 
-            if (!response.ok) {
+                // Check session storage or any other method to fetch the user
+                const response = await fetch(process.env.REACT_APP_API_BASE_URL + '/self', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include', // Include cookies in the request
+                });
+
+                if (!response.ok) {
+                    setLoadingUser(false);
+                    return;
+                }
+
+                const user = await response.json();
+                if (user) {
+                    setCurrentUser(user);
+                }
                 setLoadingUser(false);
-                return;
+            } catch (error) {
+                console.error("AuthContext error: ", error);
             }
-
-            const user = await response.json();
-            if (user) {
-                setCurrentUser(user);
-            }
-            setLoadingUser(false);
         }
 
         checkAuth();

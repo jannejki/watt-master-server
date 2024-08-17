@@ -61,25 +61,31 @@ export function initSocket(httpsServer: ReturnType<typeof createServer>) {
 
         console.log("io.engine.use called!");
         if (!isHandshake) {
+            console.log("Not handshake")
             return next();
         }
 
-        const header = req.headers["authorization"];
+        const header = req.headers["cookie"];
 
         if (!header) {
+            console.log("no header")
             return next(new Error("no token"));
         }
 
-        if (!header.startsWith("bearer ")) {
+        console.log("bearer?")
+        if (!header.startsWith("authorization=")) {
+            console.log("no bearer")
             return next(new Error("invalid token"));
         }
 
-        const token = header.substring(7);
+        const token = header.substring(14);
 
+        console.log("valid token?")
         jwt.verify(token, process.env.JWT_SECRET as string, (err: any, decoded: any) => {
             if (err) {
                 return next(new Error("invalid token"));
             }
+            console.log("token is valid")
             req.user = decoded.data;
             next();
         });
@@ -88,6 +94,7 @@ export function initSocket(httpsServer: ReturnType<typeof createServer>) {
 
     io.on("connection", async (socket) => {
         try {
+
             const decoded = extractAuthorizationCookieFromSocket(socket);
             if (!decoded) {
                 socket.disconnect(true);
@@ -172,8 +179,4 @@ export function initSocket(httpsServer: ReturnType<typeof createServer>) {
         });
 
     });
-
-    let port: number = parseInt(process.env.SOCKET_IO_PORT);
-    io.listen(port);
-    console.log(`Socket.io server running on port: ${port}`);
 }

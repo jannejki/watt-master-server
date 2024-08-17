@@ -12,7 +12,7 @@ loginRouter.get('/self',
         if (req.user) {
             res.send(req.user);
         } else {
-            res.status(401).end();
+            res.status(401).json({ test: "not ok" });
         }
     },
 );
