@@ -4,6 +4,8 @@ import * as fs from 'fs';
 if (process.env.MQTT_CERT == undefined) {
     new Error("MQTT CERT NOT FOUND!");
 }
+
+
 const MQTTConfig: IClientOptions = {
     host: process.env.MQTT_HOST,
     port: process.env.MQTT_PORT ? parseInt(process.env.MQTT_PORT) : undefined,
@@ -11,8 +13,13 @@ const MQTTConfig: IClientOptions = {
     password: process.env.MQTT_PWD,
     keepalive: 10,
     ca: fs.readFileSync(process.env.MQTT_CERT || "not found"),
-    protocol: 'ssl', // Specify the SSL/TLS protocol
-
+    protocol: 'ssl', // Specify the SSL/TLS protocol,
+    will: {
+        topic: `server/disconnect`,
+        payload: Buffer.from("disconnect"),
+        qos: 1,  // Adjust QoS level based on your preference
+        retain: false  // Set to true if you want the broker to retain the message
+    }
 }
 
 // Regex patterns for different topics

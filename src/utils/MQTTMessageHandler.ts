@@ -19,7 +19,7 @@ const MQTTMessageHandler = {
 
             let result = await knexInstance('devices').where('uuid', uuid).update({ online: true });
             let updated = await knexInstance('devices').select('*').where('uuid', uuid).first();
-      
+
             // send a command to the device to turn on the relay
             if (!process.env.MQTT_COMMAND_TOPIC) throw new Error("MQTT_TOPIC not set");
 
@@ -83,7 +83,7 @@ WHERE uuid = '${uuid}'
         message += command.mode ? `&mode=${command.mode}` : '';
         message += command.state ? `&state=${command.state}` : '';
         message += command.threshold ? `&threshold=${command.threshold}` : '';
-
+  
         sendMQTTMessage(topic, message);
     },
 

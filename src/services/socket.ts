@@ -149,6 +149,7 @@ export function initSocket(httpsServer: ReturnType<typeof createServer>) {
                     return;
                 }
 
+                console.log(msg.settings);
                 let command: RelayCommand = { ...msg.settings, relay: msg.relayID };
 
                 // send MQTT message to the device

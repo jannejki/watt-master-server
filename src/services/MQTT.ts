@@ -43,7 +43,7 @@ async function handleMessage(topic: string, message: Buffer): Promise<void> {
 
         }
 
-        if(TOPIC_DEVICE_LAST_WILL_PATTERN.test(topic)){
+        if (TOPIC_DEVICE_LAST_WILL_PATTERN.test(topic)) {
             let uuid = topic.match(TOPIC_DEVICE_LAST_WILL_PATTERN)?.[1];
             if (!uuid) throw new Error("UUID not found in topic");
             MQTTMessageHandler.deviceLastWill(uuid);
@@ -100,7 +100,6 @@ export function startMQTTClient(config: mqtt.IClientOptions): mqtt.MqttClient {
     client.on('message', (topic: string, message: Buffer) => {
         handleMessage(topic, message);
     });
-
     return client;
 }
 
@@ -112,7 +111,7 @@ export function startMQTTClient(config: mqtt.IClientOptions): mqtt.MqttClient {
  */
 export function sendMQTTMessage(topic: string, message: string): Boolean {
     let success: Boolean = false;
-
+    console.log("sending: ", message);
     if (client && client.connected) {
         client.publish(topic, message);
         success = true;

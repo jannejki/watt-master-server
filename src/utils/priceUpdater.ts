@@ -10,7 +10,7 @@ export async function getCurrentPrice(): Promise<number> {
         let date = new Date().toISOString().split('T')[0];
         let hour = new Date().getHours();
         let response = await fetch(`https://api.porssisahko.net/v1/price.json?date=${date}&hour=${hour}`);
-
+        
         if (response.status != 200) {
             throw new Error("Error fetching price");
         }
